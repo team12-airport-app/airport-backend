@@ -1,17 +1,25 @@
 package com.team12.flightmanagement.entity;
 
 import jakarta.persistence.*;
+import java.util.List;
 
+// Entity for City. Each city can have multiple airports
 @Entity
 public class City {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private String name;
     private String state;
     private int population;
 
-    //Getters and setters
+    @OneToMany(mappedBy = "city")
+    private List<Airport> airports;
+
+    public City() { }
+
+    // Getters and setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
@@ -23,5 +31,7 @@ public class City {
 
     public int getPopulation() { return population; }
     public void setPopulation(int population) { this.population = population; }
-}
 
+    public List<Airport> getAirports() { return airports; }
+    public void setAirports(List<Airport> airports) { this.airports = airports; }
+}
