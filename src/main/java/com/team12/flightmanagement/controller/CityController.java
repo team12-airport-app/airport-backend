@@ -26,6 +26,12 @@ public class CityController {
         return cityRepository.save(city);
     }
 
-    // Add PUT and DELETE as needed
+    // Get airports for a given city by city ID
+    @GetMapping("/{cityId}/airports")
+    public List<Airport> getAirportsByCity(@PathVariable Long cityId) {
+        City city = cityRepository.findById(cityId)
+                .orElseThrow(() -> new RuntimeException("City not found"));
+        return city.getAirports();
+    }
 }
 

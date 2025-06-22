@@ -25,4 +25,13 @@ public class AircraftController {
     public Aircraft addAircraft(@RequestBody Aircraft aircraft) {
         return aircraftRepository.save(aircraft);
     }
+
+    // Get all airports used by an aircraft (by aircraft ID)
+    @GetMapping("/{aircraftId}/airports")
+    public List<Airport> getAirportsByAircraft(@PathVariable Long aircraftId) {
+        Aircraft aircraft = aircraftRepository.findById(aircraftId)
+                .orElseThrow(() -> new RuntimeException("Aircraft not found"));
+        return aircraft.getAirports();
+    }
+
 }
