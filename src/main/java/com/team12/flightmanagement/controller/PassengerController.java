@@ -1,10 +1,15 @@
 package com.team12.flightmanagement.controller;
 
 import com.team12.flightmanagement.entity.Passenger;
+import com.team12.flightmanagement.entity.Aircraft;
+import com.team12.flightmanagement.entity.Airport;
 import com.team12.flightmanagement.repository.PassengerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 
 // REST controller for Passenger endpoints.
 @RestController
@@ -33,7 +38,7 @@ public class PassengerController {
         return passenger.getAircraftList();
     }
 
-    // Get all airports a passenger has used (via their flights)
+    // Get all airports a passenger has used (by their flights)
     @GetMapping("/{passengerId}/airports")
     public List<Airport> getAirportsUsedByPassenger(@PathVariable Long passengerId) {
         Passenger passenger = passengerRepository.findById(passengerId)
@@ -45,5 +50,25 @@ public class PassengerController {
                 .distinct()
                 .toList();
     }
+
+    // Update a passenger
+    @PutMapping("/{id}")
+    public Passenger updatePassenger(@PathVariable Long id, @RequestBody Passenger passengerDetails) {
+        Passenger passenger = passengerRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Passenger not found"));
+        passenger.setFirstName(passengerDetails.getFirstName());
+        passenger.setLastName(passengerDetails.getLastName());
+        passenger.setPhoneNumber(passengerDetails.getPhoneNumber());
+        passenger.setCity(passengerDetails.getCity());
+        passenger.setAircraftList(passengerDetails.getAircraftList());
+        return passengerRepository.save(passenger);
+    }
+
+    // Delete a passenger
+    @DeleteMapping("/{id}")
+    public void deletePassenger(@PathVariable Long id) {
+        passengerRepository.deleteById(id);
+    }
+
 }
 

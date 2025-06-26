@@ -2,6 +2,8 @@ package com.team12.flightmanagement.entity;
 
 import jakarta.persistence.*;
 import java.util.List;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 // Entity for Aircraft. Each aircraft can have many passengers and use many airports
 @Entity
@@ -14,6 +16,7 @@ public class Aircraft {
     private String airlineName;
     private int numberOfPassengers;
 
+    @JsonManagedReference
     @ManyToMany
     @JoinTable(
             name = "aircraft_passenger",
@@ -51,4 +54,3 @@ public class Aircraft {
     public List<Airport> getAirports() { return airports; }
     public void setAirports(List<Airport> airports) { this.airports = airports; }
 }
-

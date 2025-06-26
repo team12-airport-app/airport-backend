@@ -1,12 +1,9 @@
 package com.team12.flightmanagement.repository;
 
-import com.team12.flightmanagement.entity.Airport;
+import com.team12.flightmanagement.entity.Aircraft;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-//Repository interface for Airport entity
 @Repository
-public interface AirportRepository extends JpaRepository<Airport, Long> {
+public interface AircraftRepository extends JpaRepository<Aircraft, Long> {
 }
-
-

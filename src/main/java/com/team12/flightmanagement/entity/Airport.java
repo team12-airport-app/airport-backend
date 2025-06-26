@@ -1,6 +1,7 @@
 package com.team12.flightmanagement.entity;
 
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 // Entity for Airport. Each airport belongs to one city
 @Entity
@@ -14,6 +15,7 @@ public class Airport {
 
     @ManyToOne
     @JoinColumn(name = "city_id")
+    @JsonBackReference
     private City city;
 
     public Airport() { }

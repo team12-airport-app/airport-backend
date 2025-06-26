@@ -1,5 +1,6 @@
 package com.team12.flightmanagement.controller;
 
+import com.team12.flightmanagement.entity.Airport;
 import com.team12.flightmanagement.entity.City;
 import com.team12.flightmanagement.repository.CityRepository;
 import org.springframework.web.bind.annotation.*;
@@ -33,5 +34,24 @@ public class CityController {
                 .orElseThrow(() -> new RuntimeException("City not found"));
         return city.getAirports();
     }
+
+    // Update a city
+    @PutMapping("/{id}")
+    public City updateCity(@PathVariable Long id, @RequestBody City cityDetails) {
+        City city = cityRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("City not found"));
+
+        city.setName(cityDetails.getName());
+        city.setProvince(cityDetails.getProvince());
+        city.setPopulation(cityDetails.getPopulation());
+        return cityRepository.save(city);
+    }
+
+    // Delete a city
+    @DeleteMapping("/{id}")
+    public void deleteCity(@PathVariable Long id) {
+        cityRepository.deleteById(id);
+    }
+
 }
 
