@@ -13,4 +13,5 @@ com/team12/flightmanagement/controller/AircraftController.class
 com/team12/flightmanagement/controller/CityController.class
 com/team12/flightmanagement/repository/AirportRepository.class
 com/team12/flightmanagement/repository/AircraftRepository.class
+com/team12/flightmanagement/DataLoader.class
 com/team12/flightmanagement/controller/AirportController.class

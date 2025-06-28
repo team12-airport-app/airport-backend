@@ -1,54 +1,39 @@
 package com.team12.flightmanagement.controller;
 
 import com.team12.flightmanagement.entity.Airport;
+import com.team12.flightmanagement.entity.City;
 import com.team12.flightmanagement.repository.AirportRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import java.util.List;
-import com.team12.flightmanagement.dto.UpdateAircraftDTO;
 
+import java.util.*;
 
 @RestController
-@RequestMapping("/airports")
+@RequestMapping("/")
 public class AirportController {
 
-    private final AirportRepository airportRepository;
+    @Autowired
+    private AirportRepository airportRepository;
 
-    public AirportController(AirportRepository airportRepository) {
-        this.airportRepository = airportRepository;
+    @GetMapping("/airports")
+    public List<Map<String, Object>> getAllAirports() {
+        List<Airport> airports = airportRepository.findAll();
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (Airport airport : airports) {
+            Map<String, Object> airportMap = new HashMap<>();
+            airportMap.put("id", airport.getId());
+            airportMap.put("name", airport.getName());
+            airportMap.put("code", airport.getCode());
+            if (airport.getCity() != null) {
+                airportMap.put("cityId", airport.getCity().getId());
+                airportMap.put("cityName", airport.getCity().getName());
+            }
+            result.add(airportMap);
+        }
+        return result;
     }
-
-    @GetMapping
-    public List<Airport> getAllAirports() {
-        return airportRepository.findAll();
-    }
-
-    @PostMapping
-    public Airport addAirport(@RequestBody Airport airport) {
-        return airportRepository.save(airport);
-    }
-
-    // Update an airport
-    @PutMapping("/{id}")
-    public Airport updateAirport(@PathVariable Long id, @RequestBody Airport airportDetails) {
-        Airport airport = airportRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Airport not found"));
-        airport.setName(airportDetails.getName());
-        airport.setCode(airportDetails.getCode());
-        airport.setCity(airportDetails.getCity());
-        return airportRepository.save(airport);
-    }
-
-    // Delete an airport
-    @DeleteMapping("/{id}")
-    public void deleteAirport(@PathVariable Long id) {
-        airportRepository.deleteById(id);
-    }
-
-    @PutMapping("/dto/{id}")
-    public String updateWithDTO(@PathVariable Long id, @RequestBody UpdateAircraftDTO dto) {
-        return "Type: " + dto.type + ", Airline: " + dto.airlineName + ", Passengers: " + dto.passengerIds + ", Airports: " + dto.airportIds;
-    }
-
-
 }
+
+
+
 
