@@ -1,14 +1,15 @@
 package com.team12.flightmanagement.entity;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+
 import java.util.ArrayList;
 import java.util.List;
 
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 @Entity
 public class Airport {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -18,9 +19,11 @@ public class Airport {
 
     @ManyToOne
     @JoinColumn(name = "city_id")
+    @JsonBackReference
     private City city;
 
     @ManyToMany(mappedBy = "airports")
+    @JsonBackReference
     private List<Aircraft> aircraft = new ArrayList<>();
 
     // Getters and Setters
@@ -35,6 +38,7 @@ public class Airport {
     public List<Aircraft> getAircraft() { return aircraft; }
     public void setAircraft(List<Aircraft> aircraft) { this.aircraft = aircraft; }
 }
+
 
 
 

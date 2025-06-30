@@ -22,13 +22,13 @@ public class DataLoader implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        // Delete existing data to avoid duplicates on restarts
+        // delete existing data ahead of restart
         aircraftRepository.deleteAll();
         passengerRepository.deleteAll();
         airportRepository.deleteAll();
         cityRepository.deleteAll();
 
-        // Create Cities
+        // Createcity
         City stJohns = new City(); stJohns.setName("St. John's"); stJohns.setProvince("NL"); stJohns.setPopulation(110000);
         City halifax = new City(); halifax.setName("Halifax"); halifax.setProvince("NS"); halifax.setPopulation(430000);
         City montreal = new City(); montreal.setName("Montreal"); montreal.setProvince("QC"); montreal.setPopulation(1780000);
@@ -38,7 +38,7 @@ public class DataLoader implements CommandLineRunner {
 
         cityRepository.saveAll(Arrays.asList(stJohns, halifax, montreal, ottawa, medicineHat, yellowknife));
 
-        // Create Airports
+        // Create airport
         Airport yyt = new Airport(); yyt.setName("St. John's International Airport"); yyt.setCode("YYT"); yyt.setCity(stJohns);
         Airport yhz = new Airport(); yhz.setName("Halifax Stanfield Intl Airport"); yhz.setCode("YHZ"); yhz.setCity(halifax);
         Airport yul = new Airport(); yul.setName("Montréal–Trudeau Intl Airport"); yul.setCode("YUL"); yul.setCity(montreal);
@@ -48,7 +48,7 @@ public class DataLoader implements CommandLineRunner {
 
         airportRepository.saveAll(Arrays.asList(yyt, yhz, yul, yow, yxh, yzf));
 
-        // Attach Airports to Cities
+        // Attach airports and city
         stJohns.setAirports(Collections.singletonList(yyt));
         halifax.setAirports(Collections.singletonList(yhz));
         montreal.setAirports(Collections.singletonList(yul));
@@ -57,7 +57,7 @@ public class DataLoader implements CommandLineRunner {
         yellowknife.setAirports(Collections.singletonList(yzf));
         cityRepository.saveAll(Arrays.asList(stJohns, halifax, montreal, ottawa, medicineHat, yellowknife));
 
-        // Create Passengers
+        // Create passengers
         Passenger p1 = new Passenger(); p1.setFirstName("Richard"); p1.setLastName("Wilton"); p1.setPhoneNumber("613-235-1312"); p1.setCity(montreal);
         Passenger p2 = new Passenger(); p2.setFirstName("Lucas"); p2.setLastName("Hoyles"); p2.setPhoneNumber("782-414-7111"); p2.setCity(stJohns);
         Passenger p3 = new Passenger(); p3.setFirstName("Muhammad"); p3.setLastName("Mumtaz"); p3.setPhoneNumber("942-660-8921"); p3.setCity(ottawa);
@@ -67,7 +67,7 @@ public class DataLoader implements CommandLineRunner {
         Passenger p7 = new Passenger(); p7.setFirstName("Alex"); p7.setLastName("Brazil"); p7.setPhoneNumber("709-424-8155"); p7.setCity(halifax);
         Passenger p8 = new Passenger(); p8.setFirstName("Ben"); p8.setLastName("Hodder"); p8.setPhoneNumber("604-563-7856"); p8.setCity(medicineHat);
 
-        // Initialize aircraft lists for each passenger
+        // Initialize
         p1.setAircraftList(new ArrayList<>());
         p2.setAircraftList(new ArrayList<>());
         p3.setAircraftList(new ArrayList<>());
@@ -79,7 +79,7 @@ public class DataLoader implements CommandLineRunner {
 
         passengerRepository.saveAll(Arrays.asList(p1, p2, p3, p4, p5, p6, p7, p8));
 
-        // --- Create Aircraft ---
+        // make a plane!
         Aircraft ac1 = new Aircraft();
         ac1.setType("Airbus A320");
         ac1.setAirlineName("Air Canada");
@@ -101,7 +101,7 @@ public class DataLoader implements CommandLineRunner {
         ac3.setNumberOfPassengers(3);
         ac3.setAirports(Arrays.asList(yxh, yzf)); // YXH, YZF
 
-        // Set aircraft lists for each passenger
+        // aircraft lists for each of the passenger
         p1.getAircraftList().add(ac1);
         p2.getAircraftList().add(ac1);
         p3.getAircraftList().add(ac1);
@@ -111,7 +111,7 @@ public class DataLoader implements CommandLineRunner {
         p7.getAircraftList().add(ac2);
         p8.getAircraftList().add(ac2);
 
-        // Set aircraft list for each airport (
+        // aircraft list for each airport
         yyt.setAircraft(new ArrayList<>(Collections.singletonList(ac1)));
         yhz.setAircraft(new ArrayList<>(Collections.singletonList(ac1)));
         yul.setAircraft(new ArrayList<>(Collections.singletonList(ac2)));
@@ -119,7 +119,7 @@ public class DataLoader implements CommandLineRunner {
         yxh.setAircraft(new ArrayList<>(Collections.singletonList(ac3)));
         yzf.setAircraft(new ArrayList<>(Collections.singletonList(ac3)));
 
-        // Save everything
+        // save all the things
         aircraftRepository.saveAll(Arrays.asList(ac1, ac2, ac3));
         passengerRepository.saveAll(Arrays.asList(p1, p2, p3, p4, p5, p6, p7, p8));
         airportRepository.saveAll(Arrays.asList(yyt, yhz, yul, yow, yxh, yzf));

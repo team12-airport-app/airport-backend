@@ -1,14 +1,14 @@
 package com.team12.flightmanagement.entity;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+
 import java.util.ArrayList;
 import java.util.List;
 
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 @Entity
 public class Aircraft {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -24,6 +24,7 @@ public class Aircraft {
             joinColumns = @JoinColumn(name = "aircraft_id"),
             inverseJoinColumns = @JoinColumn(name = "passenger_id")
     )
+    @JsonManagedReference
     private List<Passenger> passengers = new ArrayList<>();
 
     @ManyToMany
@@ -32,9 +33,10 @@ public class Aircraft {
             joinColumns = @JoinColumn(name = "aircraft_id"),
             inverseJoinColumns = @JoinColumn(name = "airport_id")
     )
+    @JsonManagedReference
     private List<Airport> airports = new ArrayList<>();
 
-    // Add an airport
+    // add airport
     public void addAirport(Airport ap) {
         if (!airports.contains(ap)) {
             airports.add(ap);
@@ -42,7 +44,7 @@ public class Aircraft {
         }
     }
 
-    // Add a passenger
+    //  add passenger
     public void addPassenger(Passenger p) {
         if (!passengers.contains(p)) {
             passengers.add(p);
@@ -50,7 +52,7 @@ public class Aircraft {
         }
     }
 
-    // Getters and Setters
+    // getters and Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getRegistrationNumber() { return registrationNumber; }
@@ -66,6 +68,7 @@ public class Aircraft {
     public List<Airport> getAirports() { return airports; }
     public void setAirports(List<Airport> airports) { this.airports = airports; }
 }
+
 
 
 
