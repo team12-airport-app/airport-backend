@@ -1,8 +1,7 @@
 package com.team12.flightmanagement.controller;
 
 import com.team12.flightmanagement.entity.City;
-import com.team12.flightmanagement.repository.CityRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.team12.flightmanagement.service.CityService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -11,15 +10,19 @@ import java.util.List;
 @RequestMapping("/")
 public class CityController {
 
-    @Autowired
-    private CityRepository cityRepository;
+    private final CityService cityService;
 
-    // listing cities and the airports
+    public CityController(CityService cityService) {
+        this.cityService = cityService;
+    }
+
+    // list cities and that city's airports
     @GetMapping("/cities")
     public List<City> getAllCities() {
-        return cityRepository.findAll();
+        return cityService.getAllCities();
     }
 }
+
 
 
 

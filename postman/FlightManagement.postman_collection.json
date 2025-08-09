@@ -1,0 +1,256 @@
+{
+  "info": {
+    "name": "Flight Management API",
+    "_postman_id": "f3a8a0da-1111-2222-3333-444455556666",
+    "description": "Manual testing with CRUD and GETs",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Airports",
+      "item": [
+        {
+          "name": "List Airports (GET)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/manage/airports",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "manage",
+                "airports"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Airport (POST)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Test Airport\",\n  \"code\": \"TST\",\n  \"cityId\": 1\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/manage/airports",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "manage",
+                "airports"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Airport by ID (GET)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/manage/airports/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "manage",
+                "airports",
+                "1"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Airport (PUT)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Name\",\n  \"code\": \"UPD\",\n  \"cityId\": 1\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/manage/airports/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "manage",
+                "airports",
+                "1"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Airport (DELETE)",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/manage/airports/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "manage",
+                "airports",
+                "1"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Questions (Read-Only GETs)",
+      "item": [
+        {
+          "name": "1: What airports are there in each city?",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/airports",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "airports"
+              ]
+            }
+          },
+          "description": "Returns airports "
+        },
+        {
+          "name": "2: What aircraft has each passenger flown on?",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/aircraft-with-passengers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "aircraft-with-passengers"
+              ]
+            }
+          },
+          "description": "Each aircraft includes passengers who have flown on it"
+        },
+        {
+          "name": "3a: What airports do aircraft use? (overview)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/aircraft-with-airports",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "aircraft-with-airports"
+              ]
+            }
+          },
+          "description": "Overview of aircraft to airports they use"
+        },
+        {
+          "name": "3b: Flights for a specific aircraft (detailed)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/aircraft/1/flights",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "aircraft",
+                "1",
+                "flights"
+              ]
+            }
+          },
+          "description": "flight list for an aircraft (note: replace 1 with real ID)"
+        },
+        {
+          "name": "4: What airports have passengers used?",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/passengers-with-airports",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "passengers-with-airports"
+              ]
+            }
+          },
+          "description": "Each passenger + airports they’ve used"
+        }
+      ]
+    },
+    {
+      "name": "Reference GETs",
+      "item": [
+        {
+          "name": "List Cities",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/cities",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "cities"
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Passengers",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/passengers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "passengers"
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Aircraft",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/aircraft",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "aircraft"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
+
