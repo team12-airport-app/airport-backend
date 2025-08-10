@@ -22,18 +22,24 @@ public class AirportService {
         this.cityRepository = cityRepository;
     }
 
-    // get all airports
+    // --- READs ---
+
+    public List<Airport> findAllAirports() {
+        return findAll();
+    }
+
     public List<Airport> findAll() {
         return airportRepository.findAll();
     }
 
-    // get airport by id
+
     public Airport getById(Long id) {
         return airportRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("airport not found: " + id));
     }
 
-    // create new airport
+    // --- CREATE ---
+
     public Airport create(AirportCreateDTO dto) {
         Airport a = new Airport();
         a.setName(dto.name);
@@ -44,13 +50,12 @@ public class AirportService {
                     .orElseThrow(() -> new NoSuchElementException("city not found: " + dto.cityId));
             a.setCity(city);
         }
-
         return airportRepository.save(a);
     }
 
-    // update airport
     public Airport update(Long id, AirportUpdateDTO dto) {
-        Airport a = getById(id); // throws if not found
+        Airport a = airportRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("airport not found: " + id));
 
         if (dto.name != null) a.setName(dto.name);
         if (dto.code != null) a.setCode(dto.code);
@@ -64,7 +69,8 @@ public class AirportService {
         return airportRepository.save(a);
     }
 
-    // delete airport
+    // DELETE
+
     public void delete(Long id) {
         if (!airportRepository.existsById(id)) {
             throw new NoSuchElementException("airport not found: " + id);
@@ -72,3 +78,4 @@ public class AirportService {
         airportRepository.deleteById(id);
     }
 }
+

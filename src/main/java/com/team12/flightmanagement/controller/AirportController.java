@@ -1,9 +1,7 @@
 package com.team12.flightmanagement.controller;
 
 import com.team12.flightmanagement.entity.Airport;
-import com.team12.flightmanagement.entity.City;
-import com.team12.flightmanagement.repository.AirportRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.team12.flightmanagement.service.AirportService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -12,12 +10,17 @@ import java.util.*;
 @RequestMapping("/")
 public class AirportController {
 
-    @Autowired
-    private AirportRepository airportRepository;
+    private final AirportService airportService;
 
+    public AirportController(AirportService airportService) {
+        this.airportService = airportService;
+    }
+
+    // list airports
     @GetMapping("/airports")
     public List<Map<String, Object>> getAllAirports() {
-        List<Airport> airports = airportRepository.findAll();
+        List<Airport> airports = airportService.findAllAirports();
+
         List<Map<String, Object>> result = new ArrayList<>();
         for (Airport airport : airports) {
             Map<String, Object> airportMap = new HashMap<>();
@@ -33,6 +36,7 @@ public class AirportController {
         return result;
     }
 }
+
 
 
 

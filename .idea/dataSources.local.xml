@@ -7,5 +7,10 @@
       <schema-mapping />
       <load-sources>user_and_system_sources</load-sources>
     </data-source>
+    <data-source name="flight_management@127.0.0.1" uuid="5d6f7359-783c-4c14-aa50-af96a7881664">
+      <database-info product="" version="" jdbc-version="" driver-name="" driver-version="" dbms="MYSQL" />
+      <user-name>root</user-name>
+      <schema-mapping />
+    </data-source>
   </component>
 </project>
