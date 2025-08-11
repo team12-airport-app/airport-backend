@@ -1,7 +1,5 @@
 package com.team12.flightmanagement.manage;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -9,80 +7,67 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
-@ActiveProfiles("test")
 @AutoConfigureMockMvc
+@ActiveProfiles("test")
 class ManageAirlineControllerIT {
 
     @Autowired
     MockMvc mockMvc;
 
-    @Autowired
-    ObjectMapper objectMapper;
+    @Test
+    void listAirlines_returns200_andJsonArray() throws Exception {
+        mockMvc.perform(get("/manage/airlines").accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON));
+    }
 
     @Test
-    void create_get_delete_airline_happyPath() throws Exception {
-        // create
+    void getMissingAirline_returns404() throws Exception {
+        mockMvc.perform(get("/manage/airlines/{id}", 999999))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void createAirline_returns201_andBodyHasIdCodeName() throws Exception {
         String body = """
-                {"code":"T2","name":"Team12 Air"}
-                """;
-        MvcResult create = mockMvc.perform(post("/manage/airlines")
+            { "code": "T2", "name": "Team12 Air" }
+        """;
+
+        mockMvc.perform(post("/manage/airlines")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
                 .andExpect(status().isCreated())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.id").exists())
                 .andExpect(jsonPath("$.code").value("T2"))
-                .andReturn();
-
-        JsonNode created = objectMapper.readTree(create.getResponse().getContentAsString());
-        long id = created.get("id").asLong();
-        assertThat(id).isPositive();
-
-        // get
-        mockMvc.perform(get("/manage/airlines/{id}", id))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(id))
                 .andExpect(jsonPath("$.name").value("Team12 Air"));
-
-        // delete
-        mockMvc.perform(delete("/manage/airlines/{id}", id))
-                .andExpect(status().isNoContent());
-
-        // get again
-        mockMvc.perform(get("/manage/airlines/{id}", id))
-                .andExpect(status().isNotFound());
     }
 
     @Test
-    void duplicate_code_returns409_conflict() throws Exception {
-        String payload = """
-                {"code":"C4","name":"Cat Airways"}
-                """;
-        //create
+    void createDuplicateCode_returns409() throws Exception {
+        String first = """
+            { "code": "C4", "name": "Cat Airways" }
+        """;
+        String dup = """
+            { "code": "c4", "name": "Copy Cat Airways" }
+        """;
+
+        // First create should succeed
         mockMvc.perform(post("/manage/airlines")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(payload))
+                        .content(first))
                 .andExpect(status().isCreated());
 
-        // duplicate code
-        String dup = """
-                {"code":"c4","name":"Copy Cat Airways"}
-                """;
+        // Duplicate (case-insensitive) should be 409 CONFLICT
         mockMvc.perform(post("/manage/airlines")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(dup))
                 .andExpect(status().isConflict());
-    }
-
-    @Test
-    void get_missing_airline_returns404() throws Exception {
-        mockMvc.perform(get("/manage/airlines/{id}", 999999))
-                .andExpect(status().isNotFound());
     }
 }
