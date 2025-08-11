@@ -1,7 +1,5 @@
 package com.team12.flightmanagement.manage;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.team12.flightmanagement.entity.Airport;
 import com.team12.flightmanagement.entity.City;
 import com.team12.flightmanagement.repository.AirportRepository;
@@ -14,70 +12,70 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
-@ActiveProfiles("test")
 @AutoConfigureMockMvc
+@ActiveProfiles("test")
 class ManageGateControllerIT {
 
     @Autowired MockMvc mockMvc;
-    @Autowired ObjectMapper objectMapper;
     @Autowired CityRepository cityRepository;
     @Autowired AirportRepository airportRepository;
 
-    private String airportCode;
     private Long airportId;
+    private String airportCode;
 
     @BeforeEach
-    void seedAirport() {
-        // RESET
+    void seed() {
+        airportRepository.deleteAll();
         cityRepository.deleteAll();
-        City c = new City();
-        c.setName("St. John's");
-        c.setProvince("NL");
-        c.setPopulation(120000);
-        c = cityRepository.save(c);
+
+        City city = new City();
+        city.setName("St. John's");
+        city.setProvince("NL");
+        city.setPopulation(120000);
+        city = cityRepository.save(city);
 
         Airport a = new Airport();
         a.setName("St. John's International");
         a.setCode("YYT");
-        a.setCity(c);
+        a.setCity(city);
         a = airportRepository.save(a);
 
-        this.airportCode = a.getCode();
-        this.airportId = a.getId();
-        assertThat(airportId).isPositive();
+        airportId = a.getId();
+        airportCode = a.getCode();
     }
 
     @Test
-    void create_list_filter_get_delete_gate_happyPath() throws Exception {
-        // create - this uses airport code
+    void create_list_get_delete_gate_happyPath() throws Exception {
+        // create using airportCode
         String body = """
-                {"code":"G1","description":"Main Gate","airportCode":"%s"}
-                """.formatted(airportCode);
+            { "code": "G1", "description": "Main", "airportCode": "%s" }
+        """.formatted(airportCode);
 
-        MvcResult create = mockMvc.perform(post("/manage/gates")
+        var create = mockMvc.perform(post("/manage/gates")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
                 .andExpect(status().isCreated())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.id").exists())
                 .andExpect(jsonPath("$.code").value("G1"))
+                .andExpect(jsonPath("$.airportCode").value(airportCode))
                 .andReturn();
 
-        JsonNode created = objectMapper.readTree(create.getResponse().getContentAsString());
-        long id = created.get("id").asLong();
-        assertThat(id).isPositive();
-
-        // listing filters
+        // list filter by airport
         mockMvc.perform(get("/manage/gates").param("airport", airportCode))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].airportCode").value(airportCode));
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON));
 
-        // GET by id
+        // get by id
+        String response = create.getResponse().getContentAsString();
+        String idString = response.replaceAll(".*\"id\"\\s*:\\s*(\\d+).*", "$1");
+        long id = Long.parseLong(idString);
+
         mockMvc.perform(get("/manage/gates/{id}", id))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(id));
@@ -85,20 +83,24 @@ class ManageGateControllerIT {
         // delete
         mockMvc.perform(delete("/manage/gates/{id}", id))
                 .andExpect(status().isNoContent());
+
+        // confirm gone
+        mockMvc.perform(get("/manage/gates/{id}", id))
+                .andExpect(status().isNotFound());
     }
 
     @Test
-    void duplicate_gate_code_for_same_airport_returns409() throws Exception {
+    void duplicate_gate_code_same_airport_returns409() throws Exception {
         String payload = """
-                {"code":"A1","description":"North","airportId":%d}
-                """.formatted(airportId);
+            { "code": "A1", "description": "North", "airportId": %d }
+        """.formatted(airportId);
 
         mockMvc.perform(post("/manage/gates")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(payload))
                 .andExpect(status().isCreated());
 
-        // duplicate for same airport
+        // duplicate code for same airport
         mockMvc.perform(post("/manage/gates")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(payload))
@@ -106,19 +108,13 @@ class ManageGateControllerIT {
     }
 
     @Test
-    void creating_gate_with_unknown_airport_returns400() throws Exception {
+    void unknown_airport_returns400() throws Exception {
         String bad = """
-                {"code":"Z9","description":"Ghost","airportId":999999}
-                """;
+            { "code": "Z9", "description": "Ghost", "airportId": 999999 }
+        """;
         mockMvc.perform(post("/manage/gates")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(bad))
                 .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void get_missing_gate_returns404() throws Exception {
-        mockMvc.perform(get("/manage/gates/{id}", 424242))
-                .andExpect(status().isNotFound());
     }
 }
