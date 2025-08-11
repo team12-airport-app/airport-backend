@@ -1,5 +1,0 @@
-[engine:junit-jupiter]/[class:com.team12.flightmanagement.api.ApiSmokeTest]/[method:getPassengersWithAirports_returnsOk()]
-[engine:junit-jupiter]/[class:com.team12.flightmanagement.api.ApiSmokeTest]/[method:getCities_returnsOk()]
-[engine:junit-jupiter]/[class:com.team12.flightmanagement.api.ApiSmokeTest]/[method:getAircraftFlights_returnsOk()]
-[engine:junit-jupiter]/[class:com.team12.flightmanagement.api.ApiSmokeTest]/[method:getAircraftWithAirports_returnsOk()]
-[engine:junit-jupiter]/[class:com.team12.flightmanagement.ContextLoadsTest]/[method:contextLoads()]
