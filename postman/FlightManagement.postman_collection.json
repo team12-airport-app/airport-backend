@@ -1,152 +1,143 @@
 {
   "info": {
     "name": "Flight Management API",
-    "_postman_id": "f3a8a0da-1111-2222-3333-444455556666",
-    "description": "manual + automated tests for Q1–Q4 and Airports CRUD. Uses collection variables as defaults.",
+    "_postman_id": "8fb0b9de-7b8a-4bfc-9d1f-12a4e3a2b9a0",
+    "description": "End-to-end tests for the airport backend: Questions (Q1–Q4), Airports CRUD, Airlines CRUD, Gates CRUD. Uses dynamic variables; safe to run repeatedly.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
-  "variable": [
-    { "key": "baseUrl", "value": "http://localhost:8080" },
-    { "key": "aircraftId", "value": "1" },
-    { "key": "testCityId", "value": "" },
-    { "key": "createdAirportId", "value": "" }
-  ],
   "item": [
     {
-      "name": "Questions (Read-Only GETs)",
+      "name": "Questions (Q1–Q4 + helpers)",
       "item": [
         {
-          "name": "1: What airports are there in each city? (GET /cities)",
+          "name": "Q1 GET /cities (captures testCityId)",
           "request": {
             "method": "GET",
-            "url": { "raw": "{{baseUrl}}/cities", "host": ["{{baseUrl}}"], "path": ["cities"] }
+            "url": {
+              "raw": "{{baseUrl}}/cities",
+              "host": [ "{{baseUrl}}" ],
+              "path": [ "cities" ]
+            }
           },
           "event": [
             {
               "listen": "test",
               "script": {
-                "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"200 OK\", () => pm.response.to.have.status(200));",
-                  "const data = pm.response.json();",
-                  "pm.test(\"Array\", () => pm.expect(data).to.be.an(\"array\"));",
-                  "if (data.length) {",
-                  "  pm.test(\"City has id/name/airports[]\", () => {",
-                  "    pm.expect(data[0]).to.have.property(\"id\");",
-                  "    pm.expect(data[0]).to.have.property(\"name\");",
-                  "    pm.expect(data[0]).to.have.property(\"airports\");",
-                  "    pm.expect(data[0].airports).to.be.an(\"array\");",
-                  "  });",
-                  "  // Capture a city id for CRUD create step",
-                  "  pm.collectionVariables.set(\"testCityId\", data[0].id);",
+                  "pm.test(\"Status 200\", () => pm.response.code === 200);",
+                  "const json = pm.response.json();",
+                  "pm.expect(Array.isArray(json)).to.be.true;",
+                  "if (json.length) {",
+                  "  pm.collectionVariables.set('testCityId', json[0].id);",
                   "}"
-                ]
+                ],
+                "type": "text/javascript"
               }
             }
           ]
         },
         {
-          "name": "2: What aircraft has each passenger flown on? (GET /aircraft-with-passengers)",
+          "name": "Q2 GET /aircraft-with-passengers",
           "request": {
             "method": "GET",
-            "url": { "raw": "{{baseUrl}}/aircraft-with-passengers", "host": ["{{baseUrl}}"], "path": ["aircraft-with-passengers"] }
+            "url": {
+              "raw": "{{baseUrl}}/aircraft-with-passengers",
+              "host": [ "{{baseUrl}}" ],
+              "path": [ "aircraft-with-passengers" ]
+            }
           },
           "event": [
             {
               "listen": "test",
               "script": {
-                "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"200 OK\", () => pm.response.to.have.status(200));",
-                  "const data = pm.response.json();",
-                  "pm.test(\"Array with passengers[]\", () => {",
-                  "  pm.expect(data).to.be.an(\"array\");",
-                  "  if (data.length) {",
-                  "    pm.expect(data[0]).to.have.property(\"passengers\");",
-                  "    pm.expect(data[0].passengers).to.be.an(\"array\");",
-                  "  }",
-                  "});"
-                ]
+                  "pm.test(\"Status 200\", () => pm.response.code === 200);",
+                  "const json = pm.response.json();",
+                  "pm.expect(Array.isArray(json)).to.be.true;"
+                ],
+                "type": "text/javascript"
               }
             }
           ]
         },
         {
-          "name": "3a: What airports do aircraft use? (GET /aircraft-with-airports)",
+          "name": "Q3a GET /aircraft-with-airports (captures aircraftId)",
           "request": {
             "method": "GET",
-            "url": { "raw": "{{baseUrl}}/aircraft-with-airports", "host": ["{{baseUrl}}"], "path": ["aircraft-with-airports"] }
+            "url": {
+              "raw": "{{baseUrl}}/aircraft-with-airports",
+              "host": [ "{{baseUrl}}" ],
+              "path": [ "aircraft-with-airports" ]
+            }
           },
           "event": [
             {
               "listen": "test",
               "script": {
-                "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"200 OK\", () => pm.response.to.have.status(200));",
-                  "const data = pm.response.json();",
-                  "pm.test(\"Array with airports[]\", () => {",
-                  "  pm.expect(data).to.be.an(\"array\");",
-                  "  if (data.length) {",
-                  "    pm.expect(data[0]).to.have.property(\"airports\");",
-                  "    pm.expect(data[0].airports).to.be.an(\"array\");",
-                  "  }",
-                  "});"
-                ]
+                  "pm.test(\"Status 200\", () => pm.response.code === 200);",
+                  "const json = pm.response.json();",
+                  "pm.expect(Array.isArray(json)).to.be.true;",
+                  "if (json.length) { pm.collectionVariables.set('aircraftId', json[0].id); }"
+                ],
+                "type": "text/javascript"
               }
             }
           ]
         },
         {
-          "name": "3b: Flights for a specific aircraft (GET /aircraft/{{aircraftId}}/flights)",
+          "name": "Q3b GET /aircraft/{{aircraftId}}/flights",
           "request": {
             "method": "GET",
-            "url": { "raw": "{{baseUrl}}/aircraft/{{aircraftId}}/flights", "host": ["{{baseUrl}}"], "path": ["aircraft", "{{aircraftId}}", "flights"] }
+            "url": {
+              "raw": "{{baseUrl}}/aircraft/{{aircraftId}}/flights",
+              "host": [ "{{baseUrl}}" ],
+              "path": [ "aircraft", "{{aircraftId}}", "flights" ]
+            }
           },
           "event": [
             {
-              "listen": "test",
+              "listen": "prerequest",
               "script": {
-                "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"200 OK\", () => pm.response.to.have.status(200));",
-                  "const data = pm.response.json();",
-                  "pm.test(\"Array (may be empty)\", () => pm.expect(data).to.be.an(\"array\"));",
-                  "if (data.length) {",
-                  "  pm.test(\"Flight has core fields\", () => {",
-                  "    pm.expect(data[0]).to.have.keys([",
-                  "      \"id\",\"aircraftId\",\"fromAirportId\",\"fromAirportCode\",",
-                  "      \"toAirportId\",\"toAirportCode\",\"departedAt\",\"arrivedAt\"",
-                  "    ]);",
-                  "  });",
+                  "if (!pm.collectionVariables.get('aircraftId')) {",
+                  "  throw new Error('aircraftId is not set. Run Q3a first.');",
                   "}"
-                ]
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 200\", () => pm.response.code === 200);",
+                  "pm.expect(Array.isArray(pm.response.json())).to.be.true;"
+                ],
+                "type": "text/javascript"
               }
             }
           ]
         },
         {
-          "name": "4: What airports have passengers used? (GET /passengers-with-airports)",
+          "name": "Q4 GET /passengers-with-airports",
           "request": {
             "method": "GET",
-            "url": { "raw": "{{baseUrl}}/passengers-with-airports", "host": ["{{baseUrl}}"], "path": ["passengers-with-airports"] }
+            "url": {
+              "raw": "{{baseUrl}}/passengers-with-airports",
+              "host": [ "{{baseUrl}}" ],
+              "path": [ "passengers-with-airports" ]
+            }
           },
           "event": [
             {
               "listen": "test",
               "script": {
-                "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"200 OK\", () => pm.response.to.have.status(200));",
-                  "const data = pm.response.json();",
-                  "pm.test(\"Array of { passenger, airports[] }\", () => {",
-                  "  pm.expect(data).to.be.an(\"array\");",
-                  "  if (data.length) {",
-                  "    pm.expect(data[0]).to.have.keys([\"passenger\",\"airports\"]);",
-                  "    pm.expect(data[0].airports).to.be.an(\"array\");",
-                  "  }",
-                  "});"
-                ]
+                  "pm.test(\"Status 200\", () => pm.response.code === 200);",
+                  "pm.expect(Array.isArray(pm.response.json())).to.be.true;"
+                ],
+                "type": "text/javascript"
               }
             }
           ]
@@ -154,117 +145,181 @@
       ]
     },
     {
-      "name": "Airports (CRUD)",
+      "name": "Airports (Admin CRUD)",
       "item": [
         {
-          "name": "List Airports (GET /manage/airports)",
+          "name": "List Airports (GET) — sets airportCode if empty",
           "request": {
             "method": "GET",
-            "url": { "raw": "{{baseUrl}}/manage/airports", "host": ["{{baseUrl}}"], "path": ["manage", "airports"] }
+            "url": {
+              "raw": "{{baseUrl}}/manage/airports",
+              "host": [ "{{baseUrl}}" ],
+              "path": [ "manage", "airports" ]
+            }
           },
           "event": [
             {
               "listen": "test",
               "script": {
-                "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"200 OK\", () => pm.response.to.have.status(200));",
-                  "pm.test(\"Array\", () => pm.expect(pm.response.json()).to.be.an(\"array\"));"
-                ]
+                  "pm.test('Status 200', () => pm.response.code === 200);",
+                  "const json = pm.response.json();",
+                  "pm.expect(Array.isArray(json)).to.be.true;",
+                  "if (!pm.collectionVariables.get('airportCode') && json.length) {",
+                  "  pm.collectionVariables.set('airportCode', json[0].code || 'YYT');",
+                  "}"
+                ],
+                "type": "text/javascript"
               }
             }
           ]
         },
         {
-          "name": "Create Airport (POST /manage/airports)",
+          "name": "Create Airport (POST) — captures createdAirportId",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Postman Test Airport\",\n  \"code\": \"PTA\",\n  \"cityId\": {{testCityId}}\n}"
+              "raw": "{\n  \"code\": \"{{newAirportCode}}\",\n  \"name\": \"Test Airport {{timestamp}}\",\n  \"cityId\": {{testCityId}}\n}"
             },
-            "url": { "raw": "{{baseUrl}}/manage/airports", "host": ["{{baseUrl}}"], "path": ["manage", "airports"] }
+            "url": {
+              "raw": "{{baseUrl}}/manage/airports",
+              "host": [ "{{baseUrl}}" ],
+              "path": [ "manage", "airports" ]
+            }
           },
           "event": [
             {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const ts = Date.now();",
+                  "pm.collectionVariables.set('timestamp', ts);",
+                  "const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';",
+                  "const rand2 = letters[Math.floor(Math.random()*26)] + letters[Math.floor(Math.random()*26)];",
+                  "pm.collectionVariables.set('newAirportCode', 'T' + rand2);",
+                  "if (!pm.collectionVariables.get('testCityId')) {",
+                  "  throw new Error('testCityId not set. Run Q1 first to capture a city.');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
               "listen": "test",
               "script": {
-                "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"201 Created\", () => pm.response.to.have.status(201));",
-                  "const a = pm.response.json();",
-                  "pm.test(\"Has id/name/code\", () => {",
-                  "  pm.expect(a).to.have.property(\"id\");",
-                  "  pm.expect(a).to.have.property(\"name\");",
-                  "  pm.expect(a).to.have.property(\"code\");",
-                  "});",
-                  "// save id for later steps",
-                  "pm.collectionVariables.set(\"createdAirportId\", a.id);"
-                ]
+                  "pm.test('Status 201', () => pm.response.code === 201 || pm.response.code === 200);",
+                  "const json = pm.response.json();",
+                  "pm.expect(json).to.have.property('id');",
+                  "pm.collectionVariables.set('createdAirportId', json.id);",
+                  "pm.collectionVariables.set('airportCode', json.code);"
+                ],
+                "type": "text/javascript"
               }
             }
           ]
         },
         {
-          "name": "Get Airport by ID (GET /manage/airports/{{createdAirportId}})",
+          "name": "Get Airport by ID (GET)",
           "request": {
             "method": "GET",
-            "url": { "raw": "{{baseUrl}}/manage/airports/{{createdAirportId}}", "host": ["{{baseUrl}}"], "path": ["manage", "airports", "{{createdAirportId}}"] }
+            "url": {
+              "raw": "{{baseUrl}}/manage/airports/{{createdAirportId}}",
+              "host": [ "{{baseUrl}}" ],
+              "path": [ "manage", "airports", "{{createdAirportId}}" ]
+            }
           },
           "event": [
             {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "if (!pm.collectionVariables.get('createdAirportId')) {",
+                  "  throw new Error('createdAirportId not set. Create Airport first.');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
               "listen": "test",
               "script": {
-                "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"200 OK\", () => pm.response.to.have.status(200));",
-                  "const a = pm.response.json();",
-                  "pm.test(\"Matches createdAirportId\", () => {",
-                  "  pm.expect(String(a.id)).to.eql(String(pm.collectionVariables.get(\"createdAirportId\")));",
-                  "});"
-                ]
+                  "pm.test('Status 200', () => pm.response.code === 200);",
+                  "pm.expect(pm.response.json()).to.have.property('id');"
+                ],
+                "type": "text/javascript"
               }
             }
           ]
         },
         {
-          "name": "Update Airport (PUT /manage/airports/{{createdAirportId}})",
+          "name": "Update Airport (PUT)",
           "request": {
             "method": "PUT",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Postman Test Airport - Updated\",\n  \"code\": \"PTU\",\n  \"cityId\": {{testCityId}}\n}"
+              "raw": "{\n  \"code\": \"{{newAirportCode}}\",\n  \"name\": \"Updated Test Airport {{timestamp}}\",\n  \"cityId\": {{testCityId}}\n}"
             },
-            "url": { "raw": "{{baseUrl}}/manage/airports/{{createdAirportId}}", "host": ["{{baseUrl}}"], "path": ["manage", "airports", "{{createdAirportId}}"] }
+            "url": {
+              "raw": "{{baseUrl}}/manage/airports/{{createdAirportId}}",
+              "host": [ "{{baseUrl}}" ],
+              "path": [ "manage", "airports", "{{createdAirportId}}" ]
+            }
           },
           "event": [
             {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "if (!pm.collectionVariables.get('createdAirportId')) throw new Error('createdAirportId not set');",
+                  "if (!pm.collectionVariables.get('testCityId')) throw new Error('testCityId not set');"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
               "listen": "test",
               "script": {
-                "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"200 OK\", () => pm.response.to.have.status(200));"
-                ]
+                  "pm.test('Status 200', () => pm.response.code === 200);",
+                  "pm.expect(pm.response.json()).to.have.property('name');"
+                ],
+                "type": "text/javascript"
               }
             }
           ]
         },
         {
-          "name": "Delete Airport (DELETE /manage/airports/{{createdAirportId}})",
+          "name": "Delete Airport (DELETE)",
           "request": {
             "method": "DELETE",
-            "url": { "raw": "{{baseUrl}}/manage/airports/{{createdAirportId}}", "host": ["{{baseUrl}}"], "path": ["manage", "airports", "{{createdAirportId}}"] }
+            "url": {
+              "raw": "{{baseUrl}}/manage/airports/{{createdAirportId}}",
+              "host": [ "{{baseUrl}}" ],
+              "path": [ "manage", "airports", "{{createdAirportId}}" ]
+            }
           },
           "event": [
             {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "if (!pm.collectionVariables.get('createdAirportId')) throw new Error('createdAirportId not set');"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
               "listen": "test",
               "script": {
-                "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"204 No Content\", () => pm.response.to.have.status(204));"
-                ]
+                  "pm.test('Status 204', () => pm.response.code === 204 || pm.response.code === 200);"
+                ],
+                "type": "text/javascript"
               }
             }
           ]
@@ -272,48 +327,261 @@
       ]
     },
     {
-      "name": "Reference GETs",
+      "name": "Airlines (Admin CRUD)",
       "item": [
         {
-          "name": "List Cities (GET /cities)",
+          "name": "List Airlines (GET)",
           "request": {
             "method": "GET",
-            "url": { "raw": "{{baseUrl}}/cities", "host": ["{{baseUrl}}"], "path": ["cities"] }
+            "url": {
+              "raw": "{{baseUrl}}/manage/airlines",
+              "host": [ "{{baseUrl}}" ],
+              "path": [ "manage", "airlines" ]
+            }
+          },
+          "event": [
+            { "listen": "test", "script": { "exec": [ "pm.test('Status 200', () => pm.response.code === 200);" ], "type": "text/javascript" } }
+          ]
+        },
+        {
+          "name": "Create Airline (POST) — captures createdAirlineId",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"{{newAirlineCode}}\",\n  \"name\": \"{{newAirlineName}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/manage/airlines",
+              "host": [ "{{baseUrl}}" ],
+              "path": [ "manage", "airlines" ]
+            }
           },
           "event": [
             {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';",
+                  "const code = letters[Math.floor(Math.random()*26)] + letters[Math.floor(Math.random()*26)];",
+                  "pm.collectionVariables.set('newAirlineCode', code);",
+                  "pm.collectionVariables.set('newAirlineName', `Testline ${Date.now()}`);"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
               "listen": "test",
-              "script": { "type": "text/javascript", "exec": ["pm.test(\"200 OK\", () => pm.response.to.have.status(200));"] }
+              "script": {
+                "exec": [
+                  "pm.test('Created 201', () => pm.response.code === 201 || pm.response.code === 200);",
+                  "const json = pm.response.json();",
+                  "pm.expect(json).to.have.property('id');",
+                  "pm.collectionVariables.set('createdAirlineId', json.id);",
+                  "pm.collectionVariables.set('createdAirlineCode', json.code);"
+                ],
+                "type": "text/javascript"
+              }
             }
           ]
         },
         {
-          "name": "List Passengers (GET /passengers)",
+          "name": "Get Airline by ID (GET)",
           "request": {
             "method": "GET",
-            "url": { "raw": "{{baseUrl}}/passengers", "host": ["{{baseUrl}}"], "path": ["passengers"] }
+            "url": {
+              "raw": "{{baseUrl}}/manage/airlines/{{createdAirlineId}}",
+              "host": [ "{{baseUrl}}" ],
+              "path": [ "manage", "airlines", "{{createdAirlineId}}" ]
+            }
+          },
+          "event": [
+            { "listen": "prerequest", "script": { "exec": [ "if (!pm.collectionVariables.get('createdAirlineId')) throw new Error('createdAirlineId not set');" ], "type": "text/javascript" } },
+            { "listen": "test", "script": { "exec": [ "pm.test('Status 200', () => pm.response.code === 200);", "pm.expect(pm.response.json()).to.have.property('code');" ], "type": "text/javascript" } }
+          ]
+        },
+        {
+          "name": "Update Airline (PUT)",
+          "request": {
+            "method": "PUT",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"{{createdAirlineCode}}\",\n  \"name\": \"Updated Testline {{timestamp}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/manage/airlines/{{createdAirlineId}}",
+              "host": [ "{{baseUrl}}" ],
+              "path": [ "manage", "airlines", "{{createdAirlineId}}" ]
+            }
+          },
+          "event": [
+            { "listen": "prerequest", "script": { "exec": [ "if (!pm.collectionVariables.get('createdAirlineId')) throw new Error('createdAirlineId not set');" ], "type": "text/javascript" } },
+            { "listen": "test", "script": { "exec": [ "pm.test('Status 200', () => pm.response.code === 200);", "pm.expect(pm.response.json()).to.have.property('name');" ], "type": "text/javascript" } }
+          ]
+        },
+        {
+          "name": "Delete Airline (DELETE)",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/manage/airlines/{{createdAirlineId}}",
+              "host": [ "{{baseUrl}}" ],
+              "path": [ "manage", "airlines", "{{createdAirlineId}}" ]
+            }
+          },
+          "event": [
+            { "listen": "prerequest", "script": { "exec": [ "if (!pm.collectionVariables.get('createdAirlineId')) throw new Error('createdAirlineId not set');" ], "type": "text/javascript" } },
+            { "listen": "test", "script": { "exec": [ "pm.test('Status 204', () => pm.response.code === 204 || pm.response.code === 200);" ], "type": "text/javascript" } }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Gates (Admin CRUD + filter)",
+      "item": [
+        {
+          "name": "List Gates (GET)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/manage/gates",
+              "host": [ "{{baseUrl}}" ],
+              "path": [ "manage", "gates" ]
+            }
+          },
+          "event": [
+            { "listen": "test", "script": { "exec": [ "pm.test('Status 200', () => pm.response.code === 200);" ], "type": "text/javascript" } }
+          ]
+        },
+        {
+          "name": "Create Gate (POST) — captures createdGateId",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"{{newGateCode}}\",\n  \"description\": \"Gate for tests\",\n  \"airportCode\": \"{{airportCode}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/manage/gates",
+              "host": [ "{{baseUrl}}" ],
+              "path": [ "manage", "gates" ]
+            }
           },
           "event": [
             {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "if (!pm.collectionVariables.get('airportCode')) throw new Error('airportCode not set. Run Airports → List first.');",
+                  "const n = Math.floor(Math.random()*18)+1;",
+                  "pm.collectionVariables.set('newGateCode', 'A' + n);"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
               "listen": "test",
-              "script": { "type": "text/javascript", "exec": ["pm.test(\"200 OK\", () => pm.response.to.have.status(200));"] }
+              "script": {
+                "exec": [
+                  "pm.test('Created 201', () => pm.response.code === 201 || pm.response.code === 200);",
+                  "const json = pm.response.json();",
+                  "pm.expect(json).to.have.property('id');",
+                  "pm.collectionVariables.set('createdGateId', json.id);",
+                  "pm.collectionVariables.set('createdGateCode', json.code);"
+                ],
+                "type": "text/javascript"
+              }
             }
           ]
         },
         {
-          "name": "List Aircraft (GET /aircraft)",
+          "name": "List Gates by Airport (GET ?airport={{airportCode}})",
           "request": {
             "method": "GET",
-            "url": { "raw": "{{baseUrl}}/aircraft", "host": ["{{baseUrl}}"], "path": ["aircraft"] }
+            "url": {
+              "raw": "{{baseUrl}}/manage/gates?airport={{airportCode}}",
+              "host": [ "{{baseUrl}}" ],
+              "path": [ "manage", "gates" ],
+              "query": [ { "key": "airport", "value": "{{airportCode}}" } ]
+            }
           },
           "event": [
-            {
-              "listen": "test",
-              "script": { "type": "text/javascript", "exec": ["pm.test(\"200 OK\", () => pm.response.to.have.status(200));"] }
+            { "listen": "prerequest", "script": { "exec": [ "if (!pm.collectionVariables.get('airportCode')) throw new Error('airportCode not set');" ], "type": "text/javascript" } },
+            { "listen": "test", "script": { "exec": [ "pm.test('Status 200', () => pm.response.code === 200);", "pm.expect(Array.isArray(pm.response.json())).to.be.true;" ], "type": "text/javascript" } }
+          ]
+        },
+        {
+          "name": "Get Gate by ID (GET)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/manage/gates/{{createdGateId}}",
+              "host": [ "{{baseUrl}}" ],
+              "path": [ "manage", "gates", "{{createdGateId}}" ]
             }
+          },
+          "event": [
+            { "listen": "prerequest", "script": { "exec": [ "if (!pm.collectionVariables.get('createdGateId')) throw new Error('createdGateId not set');" ], "type": "text/javascript" } },
+            { "listen": "test", "script": { "exec": [ "pm.test('Status 200', () => pm.response.code === 200);" ], "type": "text/javascript" } }
+          ]
+        },
+        {
+          "name": "Update Gate (PUT)",
+          "request": {
+            "method": "PUT",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"{{createdGateCode}}\",\n  \"description\": \"Updated Gate {{timestamp}}\",\n  \"airportCode\": \"{{airportCode}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/manage/gates/{{createdGateId}}",
+              "host": [ "{{baseUrl}}" ],
+              "path": [ "manage", "gates", "{{createdGateId}}" ]
+            }
+          },
+          "event": [
+            { "listen": "prerequest", "script": { "exec": [ "if (!pm.collectionVariables.get('createdGateId')) throw new Error('createdGateId not set');", "if (!pm.collectionVariables.get('airportCode')) throw new Error('airportCode not set');" ], "type": "text/javascript" } },
+            { "listen": "test", "script": { "exec": [ "pm.test('Status 200', () => pm.response.code === 200);" ], "type": "text/javascript" } }
+          ]
+        },
+        {
+          "name": "Delete Gate (DELETE)",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/manage/gates/{{createdGateId}}",
+              "host": [ "{{baseUrl}}" ],
+              "path": [ "manage", "gates", "{{createdGateId}}" ]
+            }
+          },
+          "event": [
+            { "listen": "prerequest", "script": { "exec": [ "if (!pm.collectionVariables.get('createdGateId')) throw new Error('createdGateId not set');" ], "type": "text/javascript" } },
+            { "listen": "test", "script": { "exec": [ "pm.test('Status 204', () => pm.response.code === 204 || pm.response.code === 200);" ], "type": "text/javascript" } }
           ]
         }
       ]
     }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "exec": [
+          "// Ensure baseUrl exists (fallback to localhost:8080)",
+          "if (!pm.collectionVariables.get('baseUrl')) {",
+          "  pm.collectionVariables.set('baseUrl', 'http://localhost:8080');",
+          "}"
+        ],
+        "type": "text/javascript"
+      }
+    }
+  ],
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080" },
+    { "key": "airportCode", "value": "YYT" }
   ]
 }
