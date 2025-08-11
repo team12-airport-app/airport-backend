@@ -1,33 +1,28 @@
-Team12 (Stephen Morrison, Chris Morrison) Airport Backend — Flight Management API
+# Team12 (Stephen Morrison, Chris Morrison) Airport Backend — Flight Management API
 
 Spring Boot (Java 21) + MySQL 8 backend for the Team12 airport app.
 Supports read-only “boards” (Q1–Q4 endpoints from the assignment), plus an Admin surface to manage entities. Designed to be consumed by the Vite React frontend running on port 5137.
-Stack
 
-    Java 21 (Temurin)
+## Stack
 
-    Spring Boot + Spring Data JPA + Validation
+- Java 21 (Temurin)
+- Spring Boot + Spring Data JPA + Validation
+- MySQL 8.0.42 (Dockerized locally)
+- Maven Wrapper (`./mvnw`)
+- Postman collection for manual/runner tests
+- GitHub Actions CI (build + tests on PR)
 
-    MySQL 8.0.42 (Dockerized locally)
+---
 
-    Maven Wrapper (./mvnw)
+## Local Dev Quickstart
 
-    Postman collection for manual/runner tests
+### Prereqs
+- Java 21 (Temurin recommended)
+- Docker + Docker Compose
+- MySQL runs via Docker (see below)
+- Postman (recommended for assignment tests)
 
-    GitHub Actions CI (build + tests on PR)
-
-Local Dev Quickstart
-Prereqs
-
-    Java 21 (Temurin recommended)
-
-    Docker + Docker Compose
-
-    MySQL runs via Docker (see below)
-
-    Postman (recommended for assignment tests)
-
-Environment
+### Environment
 
 The app reads DB config from OS environment variables (no hard-coded creds):
 
@@ -38,8 +33,11 @@ DB_USER=airport_app
 DB_PASSWORD=AirportApp2025!
 SPRING_PROFILES_ACTIVE=local
 
-macOS/zsh note: quote the bang when exporting
+
+**macOS/zsh note:** quote the bang when exporting
+```bash
 export DB_PASSWORD='AirportApp2025!'
+
 Start DB (Docker)
 
 We map host 3307 → 3306 in the container and set the timezone to America/St_Johns.
@@ -68,6 +66,12 @@ Run the API
 The API will be at http://localhost:8080.
 
 CORS is enabled for http://localhost:5137 (frontend).
+
+    Windows UTF-8 tip (fix Montréal accents in output):
+
+    chcp 65001 > $null
+    [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+
 Postman — Collection & Runner Order
 
 Collection file: postman/FlightManagement.postman_collection.json
@@ -111,12 +115,21 @@ Airlines (Admin CRUD)
 15. Delete Airline (DELETE /manage/airlines/{{createdAirlineId}}).
 
 Gates (Admin CRUD + filter)
-16. List Gates (/manage/gates).
-17. Create Gate (POST /manage/gates) → Captures createdGateId, createdGateCode (uses airportCode).
-18. List Gates by Airport (GET /manage/gates?airport={{airportCode}}).
-19. Get Gate by ID (GET /manage/gates/{{createdGateId}}).
-20. Update Gate (PUT /manage/gates/{{createdGateId}}).
-21. Delete Gate (DELETE /manage/gates/{{createdGateId}}).
+
+    Important: Gate uses description (not name).
+    PUT requires all fields, including airportCode.
+
+    List Gates (/manage/gates).
+
+    Create Gate (POST /manage/gates) → Captures createdGateId, createdGateCode (uses airportCode).
+
+    List Gates by Airport (GET /manage/gates?airport={{airportCode}}).
+
+    Get Gate by ID (GET /manage/gates/{{createdGateId}}).
+
+    Update Gate (PUT /manage/gates/{{createdGateId}}).
+
+    Delete Gate (DELETE /manage/gates/{{createdGateId}}).
 
 Expected statuses: 200 for GET/PUT, 201 for POST (204 or 200 for DELETE).
 If a step fails: ensure the API is running on http://localhost:8080 and that you haven’t skipped earlier steps that set variables.
@@ -145,6 +158,12 @@ Admin — Airports (existing)
 
     DELETE /manage/airports/{id}
 
+Airport DTOs
+
+    Create/Update:
+
+    { "name": "Some Airport", "code": "ABC", "cityId": 1 }
+
 Admin — Airlines (PR A)
 
     GET /manage/airlines
@@ -156,6 +175,12 @@ Admin — Airlines (PR A)
     PUT /manage/airlines/{id}
 
     DELETE /manage/airlines/{id}
+
+Airline DTOs
+
+    Create/Update:
+
+    { "code": "AC", "name": "Air Canada" }
 
 Admin — Gates (PR A)
 
@@ -171,17 +196,29 @@ Admin — Gates (PR A)
 
     DELETE /manage/gates/{id}
 
-    Notes:
+Gate DTOs
 
-        Airline code is unique (e.g., AC, WS, PD).
+    Create:
 
-        Gate code is unique per airport (e.g., YYT A7, A8, …).
+{ "code": "A7", "description": "Gate A7", "airportCode": "YYT" }
+
+Update (PUT requires all fields):
+
+    { "code": "A7", "description": "Gate A7 (Updated)", "airportCode": "YYT" }
+
+Notes
+
+    Airline code is unique (e.g., AC, WS, PD).
+
+    Gate code is unique per airport (e.g., YYT A7, A8, …).
 
 Profiles & Data
 
     local: connects to the Dockerized MySQL (env-driven).
-
     Seeders may add baseline demo data for cities, airports, aircraft, and flights (conditional inserts; won’t overwrite manual entries).
+
+    test: H2 in-memory; fast unit/smoke tests.
+    DataLoader is disabled in test profile so tests start with a clean schema.
 
 CI
 
@@ -205,13 +242,13 @@ Frontend Integration Notes
 
     Make sure CORS allows this origin (already configured).
 
-    Frontend consumes:
+Frontend consumes:
 
-        Airports list for the switcher
+    Airports list for the switcher
 
-        (Soon) Arrivals/Departures board endpoints
+    (Soon) Arrivals/Departures board endpoints
 
-        Admin: Airports / Airlines / Gates / Flights
+    Admin: Airports / Airlines / Gates / Flights
 
 Troubleshooting
 
@@ -221,4 +258,4 @@ Troubleshooting
 
     Windows JAVA_HOME: If needed, set it with setx or configure via Adoptium installer.
 
-    Ports: DB 3307 on host must be free. Stop local MySQL if it conflicts.rport Backend
+    Ports: DB 3307 on host must be free. Stop local MySQL if it conflicts.
