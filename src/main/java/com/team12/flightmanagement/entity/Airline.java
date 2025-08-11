@@ -1,26 +1,19 @@
-package com.team12.flightmanagement.model;
+package com.team12.flightmanagement.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 
 @Entity
-@Table(name = "airlines", uniqueConstraints = {
-        @UniqueConstraint(name = "uk_airline_code", columnNames = {"code"})
-})
+@Table(name = "airlines",
+        uniqueConstraints = @UniqueConstraint(name = "uk_airline_code", columnNames = {"code"}))
 public class Airline {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank
-    @Size(max = 8)
     @Column(nullable = false, length = 8, unique = true)
     private String code;
 
-    @NotBlank
-    @Size(max = 100)
     @Column(nullable = false, length = 100)
     private String name;
 
@@ -31,7 +24,6 @@ public class Airline {
         if (name != null) name = name.trim();
     }
 
-    // getters and setters
     public Long getId() { return id; }
     public String getCode() { return code; }
     public String getName() { return name; }

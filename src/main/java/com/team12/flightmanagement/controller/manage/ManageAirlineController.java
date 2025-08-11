@@ -1,11 +1,10 @@
 package com.team12.flightmanagement.controller.manage;
 
-import com.team12.flightmanagement.dto.airline.AirlineDto;
+import com.team12.flightmanagement.dto.airline.AirlineDTO;
 import com.team12.flightmanagement.dto.airline.CreateAirlineRequest;
 import com.team12.flightmanagement.dto.airline.UpdateAirlineRequest;
-import com.team12.flightmanagement.model.Airline;
+import com.team12.flightmanagement.entity.Airline;
 import com.team12.flightmanagement.repository.AirlineRepository;
-import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -23,12 +22,12 @@ public class ManageAirlineController {
     }
 
     @GetMapping
-    public List<AirlineDto> list() {
+    public List<AirlineDTO> list() {
         return airlineRepository.findAll().stream().map(this::toDto).toList();
     }
 
     @GetMapping("/{id}")
-    public AirlineDto get(@PathVariable Long id) {
+    public AirlineDTO get(@PathVariable Long id) {
         Airline a = airlineRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Airline not found"));
         return toDto(a);
@@ -36,27 +35,32 @@ public class ManageAirlineController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public AirlineDto create(@Valid @RequestBody CreateAirlineRequest req) {
-        if (airlineRepository.existsByCodeIgnoreCase(req.code())) {
+    public AirlineDTO create(@RequestBody CreateAirlineRequest req) {
+        if (req == null || req.code == null || req.code.isBlank() || req.name == null || req.name.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "code and name are required");
+        }
+        if (airlineRepository.existsByCodeIgnoreCase(req.code)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Airline code already exists");
         }
         Airline a = new Airline();
-        a.setCode(req.code());
-        a.setName(req.name());
+        a.setCode(req.code);
+        a.setName(req.name);
         a = airlineRepository.save(a);
         return toDto(a);
     }
 
     @PutMapping("/{id}")
-    public AirlineDto update(@PathVariable Long id, @Valid @RequestBody UpdateAirlineRequest req) {
+    public AirlineDTO update(@PathVariable Long id, @RequestBody UpdateAirlineRequest req) {
+        if (req == null || req.code == null || req.code.isBlank() || req.name == null || req.name.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "code and name are required");
+        }
         Airline a = airlineRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Airline not found"));
-        if (!a.getCode().equalsIgnoreCase(req.code())
-                && airlineRepository.existsByCodeIgnoreCase(req.code())) {
+        if (!a.getCode().equalsIgnoreCase(req.code) && airlineRepository.existsByCodeIgnoreCase(req.code)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Airline code already exists");
         }
-        a.setCode(req.code());
-        a.setName(req.name());
+        a.setCode(req.code);
+        a.setName(req.name);
         a = airlineRepository.save(a);
         return toDto(a);
     }
@@ -70,7 +74,11 @@ public class ManageAirlineController {
         airlineRepository.deleteById(id);
     }
 
-    private AirlineDto toDto(Airline a) {
-        return new AirlineDto(a.getId(), a.getCode(), a.getName());
+    private AirlineDTO toDto(Airline a) {
+        AirlineDTO dto = new AirlineDTO();
+        dto.id = a.getId();
+        dto.code = a.getCode();
+        dto.name = a.getName();
+        return dto;
     }
 }

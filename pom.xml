@@ -1,83 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+
     <groupId>com.team12</groupId>
     <artifactId>flightmanagement</artifactId>
     <version>0.0.1-SNAPSHOT</version>
+    <name>flightmanagement</name>
+    <description>Team12 Airport Backend — Flight Management API</description>
     <packaging>jar</packaging>
+
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>3.2.5</version>
-        <relativePath/>
+        <relativePath/> <!-- look up parent from repository -->
     </parent>
+
     <properties>
         <java.version>21</java.version>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
+
     <dependencies>
-        <!-- Spring -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-jpa</artifactId>
-        </dependency>
+        <!-- Web / REST -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
+        <!-- JPA / Hibernate -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+
+        <!-- MySQL driver (runtime only) -->
         <dependency>
             <groupId>com.mysql</groupId>
             <artifactId>mysql-connector-j</artifactId>
-            <version>8.3.0</version>
             <scope>runtime</scope>
         </dependency>
 
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-        </dependency>
-
-        <!-- Tests -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-        </dependency>
+        <!-- H2 for tests -->
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Testing -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
 
     <build>
         <plugins>
-
+            <!-- Spring Boot plugin -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>repackage</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
 
+            <!-- Surefire: force H2 + test profile at the highest precedence -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.1.2</version>
                 <configuration>
-                    <release>21</release>
+                    <systemPropertyVariables>
+                        <spring.profiles.active>test</spring.profiles.active>
+
+                        <!-- Force an in-memory H2 datasource for tests -->
+                        <spring.datasource.url>
+                            jdbc:h2:mem:flight_mgmt_test;MODE=MySQL;DB_CLOSE_DELAY=-1;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH
+                        </spring.datasource.url>
+                        <spring.datasource.driverClassName>org.h2.Driver</spring.datasource.driverClassName>
+                        <spring.datasource.username>sa</spring.datasource.username>
+                        <spring.datasource.password></spring.datasource.password>
+
+                        <!-- Create/drop schema automatically in tests -->
+                        <spring.jpa.hibernate.ddl-auto>create-drop</spring.jpa.hibernate.ddl-auto>
+                        <spring.jpa.properties.hibernate.dialect>org.hibernate.dialect.H2Dialect</spring.jpa.properties.hibernate.dialect>
+
+                        <!-- Ensure no SQL files or migrations run in tests -->
+                        <spring.sql.init.mode>never</spring.sql.init.mode>
+                        <flyway.enabled>false</flyway.enabled>
+                        <liquibase.enabled>false</liquibase.enabled>
+                    </systemPropertyVariables>
                 </configuration>
             </plugin>
         </plugins>
     </build>
+
 </project>
-
-
-
-

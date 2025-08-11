@@ -3,6 +3,7 @@ package com.team12.flightmanagement;
 import com.team12.flightmanagement.entity.*;
 import com.team12.flightmanagement.repository.*;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Profile; // prevent running in tests
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -11,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
+@Profile("!test") // do not run when spring.profiles.active includes "test"
 public class DataLoader implements CommandLineRunner {
 
     private final CityRepository cityRepository;
@@ -64,15 +66,15 @@ public class DataLoader implements CommandLineRunner {
                 f1e.setAircraft(ac1Existing);
                 f1e.setFromAirport(yytExisting);
                 f1e.setToAirport(yhzExisting);
-                f1e.setDepartedAt(LocalDateTime.now().minusDays(3).withHour(9).withMinute(0));
-                f1e.setArrivedAt(LocalDateTime.now().minusDays(3).withHour(10).withMinute(30));
+                f1e.setDepartedAt(LocalDateTime.now().minusDays(1).withHour(7).withMinute(30));
+                f1e.setArrivedAt(LocalDateTime.now().minusDays(1).withHour(9).withMinute(5));
 
                 Flight f2e = new Flight();
                 f2e.setAircraft(ac2Existing);
-                f2e.setFromAirport(yulExisting);
-                f2e.setToAirport(yowExisting);
-                f2e.setDepartedAt(LocalDateTime.now().minusDays(2).withHour(14).withMinute(15));
-                f2e.setArrivedAt(LocalDateTime.now().minusDays(2).withHour(15).withMinute(5));
+                f2e.setFromAirport(yhzExisting);
+                f2e.setToAirport(yulExisting);
+                f2e.setDepartedAt(LocalDateTime.now().minusDays(1).withHour(10).withMinute(30));
+                f2e.setArrivedAt(LocalDateTime.now().minusDays(1).withHour(11).withMinute(45));
 
                 Flight f3e = new Flight();
                 f3e.setAircraft(ac3Existing);
@@ -105,12 +107,12 @@ public class DataLoader implements CommandLineRunner {
         City halifax = new City();
         halifax.setName("Halifax");
         halifax.setProvince("NS");
-        halifax.setPopulation(430000);
+        halifax.setPopulation(440000);
 
         City montreal = new City();
         montreal.setName("Montreal");
         montreal.setProvince("QC");
-        montreal.setPopulation(1700000);
+        montreal.setPopulation(1780000);
 
         City ottawa = new City();
         ottawa.setName("Ottawa");
@@ -131,74 +133,65 @@ public class DataLoader implements CommandLineRunner {
 
         // Airports
         Airport yyt = new Airport();
-        yyt.setName("St. John's International");
         yyt.setCode("YYT");
+        yyt.setName("St. John's International Airport");
         yyt.setCity(stJohns);
 
         Airport yhz = new Airport();
-        yhz.setName("Halifax Stanfield");
         yhz.setCode("YHZ");
+        yhz.setName("Halifax Stanfield International Airport");
         yhz.setCity(halifax);
 
         Airport yul = new Airport();
-        yul.setName("Montréal–Trudeau");
         yul.setCode("YUL");
+        yul.setName("Montréal–Trudeau International Airport");
         yul.setCity(montreal);
 
         Airport yow = new Airport();
-        yow.setName("Ottawa Macdonald–Cartier");
         yow.setCode("YOW");
+        yow.setName("Ottawa Macdonald–Cartier International Airport");
         yow.setCity(ottawa);
 
         Airport yxh = new Airport();
-        yxh.setName("Medicine Hat Regional");
         yxh.setCode("YXH");
+        yxh.setName("Medicine Hat Regional Airport");
         yxh.setCity(medicineHat);
 
         Airport yzf = new Airport();
-        yzf.setName("Yellowknife");
         yzf.setCode("YZF");
+        yzf.setName("Yellowknife Airport");
         yzf.setCity(yellowknife);
 
         airportRepository.saveAll(List.of(yyt, yhz, yul, yow, yxh, yzf));
 
-        // bidirectional city to Airports
-        stJohns.setAirports(new ArrayList<>(List.of(yyt)));
-        halifax.setAirports(new ArrayList<>(List.of(yhz)));
-        montreal.setAirports(new ArrayList<>(List.of(yul)));
-        ottawa.setAirports(new ArrayList<>(List.of(yow)));
-        medicineHat.setAirports(new ArrayList<>(List.of(yxh)));
-        yellowknife.setAirports(new ArrayList<>(List.of(yzf)));
-        cityRepository.saveAll(List.of(stJohns, halifax, montreal, ottawa, medicineHat, yellowknife));
-
-        // passengers and their info
+        // Passengers
         Passenger alice = new Passenger();
-        alice.setFirstName("Chris");
-        alice.setLastName("Morrison");
-        alice.setPhoneNumber("709-123-1234");
+        alice.setFirstName("Alice");
+        alice.setLastName("Smith");
+        alice.setPhoneNumber("709-555-1111");
         alice.setCity(stJohns);
 
         Passenger bob = new Passenger();
-        bob.setFirstName("Steve");
-        bob.setLastName("Morrison");
-        bob.setPhoneNumber("709-123-2345");
+        bob.setFirstName("Bob");
+        bob.setLastName("Brown");
+        bob.setPhoneNumber("902-555-2222");
         bob.setCity(halifax);
 
         Passenger cara = new Passenger();
-        cara.setFirstName("Cat");
-        cara.setLastName("Lover");
-        cara.setPhoneNumber("709-222-1313");
+        cara.setFirstName("Cara");
+        cara.setLastName("Nguyen");
+        cara.setPhoneNumber("514-555-3333");
         cara.setCity(montreal);
 
         Passenger dan = new Passenger();
-        dan.setFirstName("Jack");
-        dan.setLastName("Dawson");
+        dan.setFirstName("Dan");
+        dan.setLastName("Lee");
         dan.setPhoneNumber("506-256-1234");
         dan.setCity(ottawa);
 
         passengerRepository.saveAll(List.of(alice, bob, cara, dan));
 
-        // airplanes
+        // Aircraft
         Aircraft ac1 = new Aircraft();
         ac1.setType("A220-300");
         ac1.setAirlineName("Air Canada");
@@ -216,39 +209,32 @@ public class DataLoader implements CommandLineRunner {
 
         aircraftRepository.saveAll(List.of(ac1, ac2, ac3));
 
-        // link between passengers and aircrafts - there is new ArrayList to avoid UnsupportedOperationException
+        // Link passengers to aircraft (set on aircraft side)
         ac1.setPassengers(new ArrayList<>(List.of(alice, bob)));
         ac2.setPassengers(new ArrayList<>(List.of(alice, cara)));
         ac3.setPassengers(new ArrayList<>(List.of(bob, dan)));
         aircraftRepository.saveAll(List.of(ac1, ac2, ac3));
 
-        // Keep inverse side if your Passenger owns the relation or if you serialize both ways
-        alice.setAircraftList(new ArrayList<>(List.of(ac1, ac2)));
-        bob.setAircraftList(new ArrayList<>(List.of(ac1, ac3)));
-        cara.setAircraftList(new ArrayList<>(List.of(ac2)));
-        dan.setAircraftList(new ArrayList<>(List.of(ac3)));
-        passengerRepository.saveAll(List.of(alice, bob, cara, dan));
+        // NOTE: We intentionally do NOT call passenger.setAircrafts(...)
+        // because Passenger doesn't expose that mutator in your model.
+        // Setting from the aircraft side is sufficient for seeding.
+        // If you want bi-directional consistency in memory, we can add
+        // a safe helper later that checks methods and updates both sides.
 
-        // linked planes and airports
-        ac1.setAirports(new ArrayList<>(List.of(yyt, yhz)));        // air canada uses YYT, YHZ
-        ac2.setAirports(new ArrayList<>(List.of(yul, yow)));        // porter will use YUL, YOW
-        ac3.setAirports(new ArrayList<>(List.of(yzf, yxh)));        // westjet uses YZF, YXH
-        aircraftRepository.saveAll(List.of(ac1, ac2, ac3));
-
-        // flights takeoff/landing pairs
+        // Flights (sample past flights so arrivedAt is set)
         Flight f1 = new Flight();
         f1.setAircraft(ac1);
         f1.setFromAirport(yyt);
         f1.setToAirport(yhz);
-        f1.setDepartedAt(LocalDateTime.now().minusDays(3).withHour(9).withMinute(0));
-        f1.setArrivedAt(LocalDateTime.now().minusDays(3).withHour(10).withMinute(30));
+        f1.setDepartedAt(LocalDateTime.now().minusDays(1).withHour(7).withMinute(30));
+        f1.setArrivedAt(LocalDateTime.now().minusDays(1).withHour(9).withMinute(5));
 
         Flight f2 = new Flight();
         f2.setAircraft(ac2);
-        f2.setFromAirport(yul);
-        f2.setToAirport(yow);
-        f2.setDepartedAt(LocalDateTime.now().minusDays(2).withHour(14).withMinute(15));
-        f2.setArrivedAt(LocalDateTime.now().minusDays(2).withHour(15).withMinute(5));
+        f2.setFromAirport(yhz);
+        f2.setToAirport(yul);
+        f2.setDepartedAt(LocalDateTime.now().minusDays(1).withHour(10).withMinute(30));
+        f2.setArrivedAt(LocalDateTime.now().minusDays(1).withHour(11).withMinute(45));
 
         Flight f3 = new Flight();
         f3.setAircraft(ac3);
@@ -260,10 +246,9 @@ public class DataLoader implements CommandLineRunner {
         flightRepository.saveAll(List.of(f1, f2, f3));
     }
 
-    // helpers
     private Airport findAirportByCode(String code) {
         for (Airport a : airportRepository.findAll()) {
-            if (code.equals(a.getCode())) return a;
+            if (code.equalsIgnoreCase(a.getCode())) return a;
         }
         return null;
     }
@@ -275,6 +260,7 @@ public class DataLoader implements CommandLineRunner {
         return null;
     }
 }
+
 
 
 
